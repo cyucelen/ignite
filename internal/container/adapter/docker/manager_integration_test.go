@@ -161,7 +161,7 @@ func TestDockerManager_CreateStartStop(t *testing.T) {
 
 	// Ensure cleanup
 	defer func() {
-		cleanupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 		_ = manager.StopContainer(cleanupCtx, dockerID)
 		_ = manager.RemoveContainer(cleanupCtx, dockerID)
@@ -178,8 +178,8 @@ func TestDockerManager_CreateStartStop(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, inspect.State.Running, "Container should be running")
 
-	// Stop container
-	stopCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	// Stop container (nginx needs more time for graceful shutdown)
+	stopCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 	err = manager.StopContainer(stopCtx, dockerID)
 	require.NoError(t, err)
