@@ -1,0 +1,43 @@
+service: ignite
+
+image: cyucelen/ignite
+
+# Docker socket mounting for child container management
+volumes:
+  - /var/run/docker.sock:/var/run/docker.sock
+
+servers:
+  web:
+    hosts:
+      - <%= ENV['SERVER_IP'] %>
+
+    options:
+      user: root
+
+    proxy:
+      app_port: 3000
+      response_timeout: 300
+      healthcheck:
+        path: /api/health
+
+registry:
+  server: ghcr.io
+  username: cyucelen
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  context: .
+  dockerfile: Dockerfile
+  arch: amd64
+
+env:
+  clear:
+    PORT: "3000"
+    MAX_CONTAINERS: "50"
+    CONTAINER_TIMEOUT: "300"
+    SHUTDOWN_TIMEOUT: "30"
+
+  secret:
+    - DOCKER_HOST
+

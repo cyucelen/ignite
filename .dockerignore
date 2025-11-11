@@ -1,0 +1,50 @@
+# Git
+.git/
+.gitignore
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+CLAUDE.md
+docs/
+specs/
+*.md
+!go.mod
+!go.sum
+
+# Build artifacts
+bin/
+dist/
+build/
+tmp/
+
+# Test files
+*_test.go
+coverage.out
+coverage.html
+*.coverprofile
+
+# Environment and secrets
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+
+# Logs
+*.log
+logs/
+
+# Development only files
+Dockerfile
+.dockerignore
+docker-compose*.yml
+Makefile

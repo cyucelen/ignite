@@ -1,0 +1,64 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+bin/
+dist/
+
+# Test coverage
+coverage.out
+coverage.html
+*.coverprofile
+
+# Go workspace file
+go.work
+
+# Dependencies
+vendor/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+
+# Build artifacts
+build/
+tmp/
+
+# Logs
+*.log
+logs/
+
+# Node.js / React (Feature 003 - Web UI)
+node_modules/
+ui/build/
+ui/dist/
+ui/.vite/
+internal/ui/build/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Development tooling (local only, not for open source release)
+.specify/
+.claude/
+CLAUDE.md
+specs/
