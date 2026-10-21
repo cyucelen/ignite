@@ -442,6 +442,67 @@ func TestContainerService_HandleContainerEvents(t *testing.T) {
 	mockRepo.AssertCalled(t, "Save", mock.Anything, container)
 }
 
+func TestContainerService_DieEvent_FailedExitKeepsLastLogs(t *testing.T) {
+	mockDocker := new(MockDockerManager)
+	mockRepo := new(MockContainerRepository)
+	service := NewContainerService(mockDocker, mockRepo, &config.Config{MaxContainers: 50})
+
+	container := &model.Container{
+		ID:       "container-123",
+		DockerID: "docker-123",
+		State:    model.Running,
+	}
+
+	mockRepo.On("FindAll", mock.Anything).Return([]*model.Container{container}, nil)
+	mockRepo.On("Save", mock.Anything, container).Return(nil)
+	mockDocker.On("GetLogs", mock.Anything, "docker-123", exitLogLines, false).Return([]string{
+		"connecting to postgres\n",
+		"FATAL: password authentication failed for user \"bot\"\n",
+	}, nil)
+
+	exitCode := 1
+	service.processEvent(context.Background(), ContainerEvent{
+		DockerID:  "docker-123",
+		EventType: "die",
+		ExitCode:  &exitCode,
+		Timestamp: time.Now(),
+	})
+
+	assert.Equal(t, model.Exited, container.State)
+	assert.Equal(t, []string{
+		"connecting to postgres",
+		"FATAL: password authentication failed for user \"bot\"",
+	}, container.LastLogs)
+	mockDocker.AssertExpectations(t)
+}
+
+func TestContainerService_DieEvent_CleanExitSkipsLogs(t *testing.T) {
+	mockDocker := new(MockDockerManager)
+	mockRepo := new(MockContainerRepository)
+	service := NewContainerService(mockDocker, mockRepo, &config.Config{MaxContainers: 50})
+
+	container := &model.Container{
+		ID:       "container-123",
+		DockerID: "docker-123",
+		State:    model.Running,
+	}
+
+	mockRepo.On("FindAll", mock.Anything).Return([]*model.Container{container}, nil)
+	mockRepo.On("Save", mock.Anything, container).Return(nil)
+
+	exitCode := 0
+	service.processEvent(context.Background(), ContainerEvent{
+		DockerID:  "docker-123",
+		EventType: "die",
+		ExitCode:  &exitCode,
+		Timestamp: time.Now(),
+	})
+
+	assert.Equal(t, model.Exited, container.State)
+	assert.Nil(t, container.LastLogs)
+	mockDocker.AssertNotCalled(t, "GetLogs", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+}
+
 // T037: Test GetContainer success
 func TestContainerService_GetContainer_Success(t *testing.T) {
 	mockDocker := new(MockDockerManager)

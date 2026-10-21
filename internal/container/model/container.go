@@ -89,6 +89,7 @@ type Container struct {
 	StartedAt            *time.Time
 	ExitedAt             *time.Time
 	ExitCode             *int
+	LastLogs             []string
 	Labels               map[string]string
 	ResourceLimits       *ResourceLimits
 	ReconciledAt         *time.Time

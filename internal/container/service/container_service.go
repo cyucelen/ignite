@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/cyucelen/ignite/internal/container/model"
 	"github.com/cyucelen/ignite/internal/shared/config"
 )
+
+// exitLogLines is how many log lines are kept when a container exits with an error.
+const exitLogLines = 20
 
 type ContainerEvent struct {
 	DockerID  string
@@ -306,7 +310,28 @@ func (s *ContainerService) handleDieEvent(ctx context.Context, container *model.
 	if err := container.MarkExited(*event.ExitCode, event.Timestamp); err != nil {
 		return
 	}
+	if *event.ExitCode != 0 {
+		s.captureLastLogs(ctx, container)
+	}
 	_ = s.repository.Save(ctx, container)
+}
+
+// captureLastLogs keeps the tail of a failed container's output, so the reason
+// is still there after the container is removed from Docker.
+func (s *ContainerService) captureLastLogs(ctx context.Context, container *model.Container) {
+	logs, err := s.dockerManager.GetLogs(ctx, container.DockerID, exitLogLines, false)
+	if err != nil {
+		log.Printf("[container.exit_logs_failed] Could not read logs of %s: %v", container.ID, err)
+		return
+	}
+	for i, line := range logs {
+		logs[i] = strings.TrimRight(line, "\r\n")
+	}
+	container.LastLogs = logs
+	if len(logs) > 0 {
+		log.Printf("[container.failed] %s exited with code %d: %s",
+			container.ID, *container.ExitCode, logs[len(logs)-1])
+	}
 }
 
 func (s *ContainerService) handleStartEvent(ctx context.Context, container *model.Container, event ContainerEvent) {

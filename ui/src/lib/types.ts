@@ -16,6 +16,7 @@ export interface Container {
   started_at?: string;
   exited_at?: string;
   exit_code?: number;
+  last_logs?: string[];
 }
 
 export interface ContainerMetrics {
