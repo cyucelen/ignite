@@ -15,6 +15,7 @@ type ContainerResponse struct {
 	StartedAt   *string           `json:"started_at,omitempty"`
 	ExitedAt    *string           `json:"exited_at,omitempty"`
 	ExitCode    *int              `json:"exit_code,omitempty"`
+	LastLogs    []string          `json:"last_logs,omitempty"`
 	Uptime      *int64            `json:"uptime,omitempty"`
 }
 
@@ -58,6 +59,7 @@ func NewContainerResponse(container *model.Container) *ContainerResponse {
 		response.ExitCode = container.ExitCode
 	}
 
+	response.LastLogs = container.LastLogs
 	response.Uptime = container.Uptime()
 
 	return response

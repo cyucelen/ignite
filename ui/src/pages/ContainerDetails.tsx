@@ -315,6 +315,26 @@ export function ContainerDetails() {
           )}
       </div>
 
+      {/* Last output - kept when the container exits with an error */}
+      {container.last_logs && container.last_logs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
+              Last Output
+              <Badge variant="destructive" className="ml-3">
+                exit {container.exit_code}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <pre className="text-sm font-mono bg-muted p-4 rounded-md overflow-x-auto whitespace-pre-wrap">
+              {container.last_logs.join("\n")}
+            </pre>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Resource Metrics - Only for running containers */}
       {container.state === "running" && (
         <Card>

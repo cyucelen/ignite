@@ -175,6 +175,20 @@ Returns all active containers with current state, uptime, and resource usage.
 }
 ```
 
+When a container exits with a non-zero code, Ignite keeps its last 20 log lines in `last_logs`, so you can still see why it failed after the container is removed:
+
+```json
+{
+  "id": "abc123",
+  "state": "exited",
+  "exit_code": 1,
+  "last_logs": [
+    "joining meeting 123-456-789",
+    "KeyError: 'ZOOM_API_KEY'"
+  ]
+}
+```
+
 ### Stop Container
 
 **DELETE** `/api/containers/{id}`
@@ -359,6 +373,10 @@ Check Docker daemon:
 docker ps  # Verify Docker is running
 curl http://localhost:3000/api/health  # Check API health
 ```
+
+### Container exits right after start
+
+Check `last_logs` in `GET /api/containers/{id}`, or the Last Output card in the Web UI. It holds the last lines the container printed before a non-zero exit.
 
 ### Image pull errors
 

@@ -19,6 +19,7 @@ export const containerSchema = z.object({
   started_at: z.string().optional(),
   exited_at: z.string().optional(),
   exit_code: z.number().int().optional(),
+  last_logs: z.array(z.string()).optional(),
 });
 
 export const containerMetricsSchema = z.object({
